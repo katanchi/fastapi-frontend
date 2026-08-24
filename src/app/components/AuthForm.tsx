@@ -20,9 +20,12 @@ type ApiErrorDetail =
   | {
       msg?: string;
     }
-  | Array<{
-      msg?: string;
-    }>;
+  | Array<
+      | string
+      | {
+          msg?: string;
+        }
+    >;
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
 
@@ -207,7 +210,7 @@ function formatApiError(detail: ApiErrorDetail) {
 
   if (Array.isArray(detail)) {
     return detail
-      .map((item) => item.msg)
+      .map((item) => (typeof item === "string" ? item : item.msg))
       .filter(Boolean)
       .join("، ");
   }
