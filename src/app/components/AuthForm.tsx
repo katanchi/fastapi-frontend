@@ -15,6 +15,15 @@ type ApiTokenResponse = {
   token_type: string;
 };
 
+type ApiErrorDetail =
+  | string
+  | {
+      msg?: string;
+    }
+  | Array<{
+      msg?: string;
+    }>;
+
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
 
 export default function AuthForm({ mode }: AuthFormProps) {
@@ -57,7 +66,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
       if (!response.ok) {
         setMessageType("error");
-        setMessage(data.detail ?? "درخواست ناموفق بود.");
+        setMessage(formatApiError(data.detail));
         return;
       }
 
@@ -189,6 +198,25 @@ export default function AuthForm({ mode }: AuthFormProps) {
       </section>
     </main>
   );
+}
+
+function formatApiError(detail: ApiErrorDetail) {
+  if (typeof detail === "string") {
+    return detail;
+  }
+
+  if (Array.isArray(detail)) {
+    return detail
+      .map((item) => item.msg)
+      .filter(Boolean)
+      .join("، ");
+  }
+
+  if (detail?.msg) {
+    return detail.msg;
+  }
+
+  return "درخواست ناموفق بود.";
 }
 
 type TextInputProps = {
